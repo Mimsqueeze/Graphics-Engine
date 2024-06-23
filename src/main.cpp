@@ -2,19 +2,28 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-// Define the vertex data
-GLfloat vertices[] = {
-    // positions
-    0.0f,  0.5f, 0.0f,
-   -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f
+using namespace std;
+
+// Define screen size
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
+
+// Define number of triangles
+const int NUM_TRIANGLES = 1;
+
+// Define the vertex data for two triangles
+GLfloat vertices[NUM_TRIANGLES * 3 * 3] = {
+    // Triangle 1
+    -0.5f, -0.5f, 0.0f,   // Bottom-left
+     0.5f, -0.5f, 0.0f,   // Bottom-right
+     0.0f,  0.5f, 0.0f,   // Top-center (higher z-coordinate)
 };
 
 #undef main
 int main(int argc, char* argv[]) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        cerr << "SDL_Init Error: " << SDL_GetError() << endl;
         return -1;
     }
 
@@ -24,9 +33,9 @@ int main(int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // Create a window
-    SDL_Window* window = SDL_CreateWindow("SDL2 and GLEW", 100, 100, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("SDL2 and GLEW", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (window == nullptr) {
-        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        cerr << "SDL_CreateWindow Error: " << SDL_GetError() << endl;
         SDL_Quit();
         return -1;
     }
@@ -34,7 +43,7 @@ int main(int argc, char* argv[]) {
     // Create an OpenGL context
     SDL_GLContext context = SDL_GL_CreateContext(window);
     if (context == nullptr) {
-        std::cerr << "SDL_GL_CreateContext Error: " << SDL_GetError() << std::endl;
+        cerr << "SDL_GL_CreateContext Error: " << SDL_GetError() << endl;
         SDL_DestroyWindow(window);
         SDL_Quit();
         return -1;
@@ -43,7 +52,7 @@ int main(int argc, char* argv[]) {
     // Initialize GLEW
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
+        cerr << "Failed to initialize GLEW" << endl;
         SDL_GL_DeleteContext(context);
         SDL_DestroyWindow(window);
         SDL_Quit();
@@ -61,7 +70,7 @@ int main(int argc, char* argv[]) {
         }
 
         // Render
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Enable client states
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -69,8 +78,8 @@ int main(int argc, char* argv[]) {
         // Provide vertex data
         glVertexPointer(3, GL_FLOAT, 0, vertices);
 
-        // Draw the triangle
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        // Draw the two triangles
+        glDrawArrays(GL_TRIANGLES, 0, 3 * NUM_TRIANGLES);
 
         // Disable client states
         glDisableClientState(GL_VERTEX_ARRAY);
