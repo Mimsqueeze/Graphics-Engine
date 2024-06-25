@@ -2,6 +2,8 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <cmath>
+#include <iomanip>
+#include "test.hpp"
 
 using namespace std;
 
@@ -9,16 +11,16 @@ using namespace std;
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
-// Define number of triangles
-const int NUM_TRIANGLES = 1;
-
-// Define the vertex data for one triangle
-GLfloat vertices[] = {
-    // Triangle 1
-    -0.5f, -0.5f, 0.0f,   // Bottom-left (closer)
-     0.5f, -0.5f, 0.0f,   // Bottom-right (closer)
-     0.0f,  0.5f, 0.0f    // Top-center (farther)
-};
+void print_matrix(const string& name, const float *matrix, int rows, int cols) {
+    cout << name << ": " << endl;
+    cout << fixed << setprecision(2);
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            cout << matrix[j * rows + i] << "\t";
+        }
+        cout << endl;
+    }
+}
 
 #undef main
 int main(int argc, char* argv[]) {
@@ -34,7 +36,29 @@ int main(int argc, char* argv[]) {
     // Initialize GLEW
     glewExperimental = GL_TRUE;
     glewInit();
-    
+
+    // Define number of triangles
+    const int NUM_TRIANGLES = 1;
+
+    // Define the vertex data for one triangle
+    float vertices[NUM_TRIANGLES * 3 * 3] = {
+        // Triangle 1
+        -0.5f, -0.5f, 0.0f,   // Bottom-left (closer)
+        0.5f, -0.5f, 0.0f,   // Bottom-right (closer)
+        0.0f,  0.5f, 0.0f    // Top-center (farther)
+    };
+
+    print_matrix("Original vertices", vertices, 3, NUM_TRIANGLES * 3);
+
+    // Define perspective projection parameters
+    const float fov = 90.0f;    // Field of view
+    const float aspect = 1280.0f / 720.0f; // Aspect ratio
+    const float nearClip = 0.1f; // Near clipping plane
+    const float farClip = 100.0f; // Far clipping plane
+
+    float results[NUM_TRIANGLES * 3 * 3]{0};
+    perspective_projection(results, vertices, NUM_TRIANGLES * 3, fov, aspect, nearClip, farClip);
+
     // Main loop
     bool running = true;
     SDL_Event event;
